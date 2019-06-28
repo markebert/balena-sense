@@ -50,10 +50,10 @@ class balenaSense():
 
                 self.sensor = HTS221()
         else:
-                print('Using BME680 for readings')
+            print('Using BME680 for readings')
 
-                # Import the BME680 methods
-                self.sensor = BME680(self.readfrom)
+            # Import the BME680 methods
+            self.sensor = BME680(self.readfrom)
 
 
         # If this is still unset, no sensors were found; quit!
@@ -69,6 +69,14 @@ class balenaSense():
 
 
     def apply_offsets(self, measurements):
+        # Adjust the measured temperature to the designated unit, otherwise leaves it as celsius
+        if os.environ.get('BALENASENSE_TEMP_UNIT') != None:
+            tempUnit = os.environ['BALENASENSE_TEMP_UNIT'].lower()
+            if (tempUnit == 'fahrenheit'):
+                measurements[0]['fields']['temperature'] = (measurements[0]['fields']['temperature'] * 1.8) + 32
+            elif (tempUnit == 'kelvin'):
+                measurements[0]['fields']['temperature'] = measurements[0]['fields']['temperature'] + 273.15
+
         # Apply any offsets to the measurements before storing them in the database
         if os.environ.get('BALENASENSE_TEMP_OFFSET') != None:
             measurements[0]['fields']['temperature'] = measurements[0]['fields']['temperature'] + float(os.environ['BALENASENSE_TEMP_OFFSET'])
