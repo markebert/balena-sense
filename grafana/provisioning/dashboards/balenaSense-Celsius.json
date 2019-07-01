@@ -354,7 +354,7 @@
         ],
         "valueMappings": [],
         "valueOptions": {
-          "decimals": null,
+          "decimals": 2,
           "prefix": "",
           "stat": "last",
           "suffix": "",
