@@ -14,6 +14,7 @@ WORKDIR /usr/src/app/bsec_bme680_linux
 RUN chmod +x make.sh
 RUN ./make.sh
 
+RUN pip install --upgrade pip
 RUN pip install smbus
 
 WORKDIR /usr/src/app
