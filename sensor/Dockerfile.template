@@ -8,7 +8,8 @@ RUN install_packages \
 WORKDIR /usr/src/app
 RUN git clone https://github.com/markebert/bsec_bme680_linux.git
 RUN wget https://ae-bst.resource.bosch.com/media/_tech/media/bsec/$BSEC_FILENAME
-RUN unzip $BSEC_FILENAME -d bsec_bme680_linux/src
+RUN unzip -d bsec_bme680_linux/src $BSEC_FILENAME
+RUN echo $BSEC_FILENAME > version
 
 WORKDIR /usr/src/app/bsec_bme680_linux
 RUN chmod +x make.sh
