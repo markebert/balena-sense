@@ -8,8 +8,8 @@ import smbus
 import os
 import json
 
-from hts221 import HTS221
 from bme680 import BME680
+from w1therm import W1THERM
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 class balenaSense():
@@ -47,14 +47,29 @@ class balenaSense():
 
                 # Import the sense hat methods
                 import sense_hat_air_quality
-
-                self.sensor = HTS221()
+                from hts221 import HTS221
+                self.sense_hat_reading = lambda: sense_hat_air_quality.get_readings(HTS221())
         else:
             print('Using BME680 for readings')
 
             # Import the BME680 methods
             self.sensor = BME680(self.readfrom)
 
+
+        # Next, check if there is a 1-wire temperature sensor (e.g. DS18B20)
+        if self.readfrom == 'unset':
+            if os.environ.get('BALENASENSE_1WIRE_SENSOR_ID') != None:
+                sensor_id = os.environ['BALENASENSE_1WIRE_SENSOR_ID']
+            else:
+                sensor_id = None
+
+            try:
+                self.sensor = W1THERM(sensor_id)
+            except:
+                print('1-wire sensor not found')
+            else:
+                self.readfrom = '1-wire'
+                print('Using 1-wire for readings (temperature only)')
 
         # If this is still unset, no sensors were found; quit!
         if self.readfrom == 'unset':
@@ -63,7 +78,7 @@ class balenaSense():
 
     def sample(self):
         if self.readfrom == 'sense-hat':
-            return self.apply_offsets(sense_hat_air_quality.get_readings(self.sensor))
+            return self.apply_offsets(self.sense_hat_reading())
         else:
             return self.apply_offsets(self.sensor.get_readings(self.sensor))
 
